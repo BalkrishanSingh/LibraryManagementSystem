@@ -10,16 +10,19 @@ Book::Book(int bookID,std::string bookName, std::string author, std::string publ
     this->publisher = publisher;
 }
 
-User::User(int userID,std::string userName,int password,) {
+User::User(int userID,std::string userName,int password) {
     this->userName = userName;
     this->userID = userID;
     this->password = password;
 }
 
-void Library::RegisterUser(int userId,std::string borrowerName,int password, UserType userType) {
+void Library::RegisterUser(int userId,std::string borrowerName,int password) {
     std::cout << std::endl;
     std::cin >> borrowerName >> userId >> password;
-    users.push_back(std::make_shared<User>(userId, borrowerName, password, userType));
+    users.push_back(std::make_shared<User>(userId, borrowerName, password));
+}
+std::string User::DisplayMenu() {
+    return "";
 }
 
 
