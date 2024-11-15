@@ -17,25 +17,31 @@ class Book {
     int bookID;
 public:
     std::shared_ptr<User> bookBorrower;
-    Book(std::string bookName, std::string author, std::string publisher);
+    Book(int bookID,std::string bookName, std::string author, std::string publisher);
+    std::string BookInformation();
 };
 
-enum UserType {
-    Admin,
-    Student
-};
+
 class User {
-
+protected:
     std::string userName;
     int password;
     int userID;
-    UserType userType = UserType::Student;
-
 public:
-    std::vector<std::shared_ptr<Book>> borrowedBook;
-    User( int userID,std::string borrowerName,int password, UserType userType);
+    std::shared_ptr<Book>  borrowedBook;
+    User( int userID,std::string userName,int password);
+
+    virtual ~User() = default;
+    std::string virtual DisplayMenu();
 };
 
+class Student :public User{
+    std::string DisplayMenu();
+};
+
+class Adminstrator : public User {
+     std::string  DisplayMenu();
+};
 
 class Library {
     std::vector<std::shared_ptr<User>> users;
@@ -45,9 +51,8 @@ class Library {
     void displayBooks();
     void searchBook();
 public:
-    void RegisterUser(int userId,std::string borrowerName,int password, UserType userType);
+    void RegisterUser(int userId,std::string userName,int password);
     void LoginUser();
-    void Menu(User activeUser);
 };
 
 #endif //LIBRARY_H

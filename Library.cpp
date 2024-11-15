@@ -1,22 +1,51 @@
 #include "Library.h"
+#include "string"
 #include <iostream>
 
 
-Book::Book(std::string bookName, std::string author, std::string publisher) {
+Book::Book(int bookID,std::string bookName, std::string author, std::string publisher) {
+    this->bookID = bookID;
     this->bookName = bookName;
     this->author = author;
     this->publisher = publisher;
 }
 
-User::User(int userID,std::string userName,int password,UserType userType = UserType::Student) {
+User::User(int userID,std::string userName,int password,) {
     this->userName = userName;
     this->userID = userID;
     this->password = password;
-    this->userType = userType;
 }
 
 void Library::RegisterUser(int userId,std::string borrowerName,int password, UserType userType) {
     std::cout << std::endl;
     std::cin >> borrowerName >> userId >> password;
     users.push_back(std::make_shared<User>(userId, borrowerName, password, userType));
+}
+
+
+std::string Student::DisplayMenu() {
+    return  R"(
+========== Library Management System (Administrator Menu) ==========
+Please select an option :
+ 1. Add Book
+ 2. Modify Book
+ 3. Delete Book
+ 4. View All Books
+ 5. Exit
+=====================================================================
+)";
+}
+
+std::string Adminstrator::DisplayMenu() {
+    return R"(
+========== Library Management System (Student Menu) ==========
+Please select an option :
+ Student Menu:
+ 1. Issue a Book
+ 2. Return a Book
+ 3. View Issued Book
+ 4. Exit
+===============================================================
+)";
+
 }
