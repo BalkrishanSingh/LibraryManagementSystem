@@ -8,7 +8,7 @@ Book::Book(std::string bookName, std::string author, std::string publisher) {
     this->publisher = publisher;
 }
 
-User::User(int userID,std::string userName,int password,UserType userType = UserType::Borrower) {
+User::User(int userID,std::string userName,int password,UserType userType = UserType::Student) {
     this->userName = userName;
     this->userID = userID;
     this->password = password;

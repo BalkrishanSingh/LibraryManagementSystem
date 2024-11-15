@@ -14,6 +14,7 @@ class Book {
     std::string bookName;
     std::string author;
     std::string publisher;
+    int bookID;
 public:
     std::shared_ptr<User> bookBorrower;
     Book(std::string bookName, std::string author, std::string publisher);
@@ -21,14 +22,14 @@ public:
 
 enum UserType {
     Admin,
-    Borrower
+    Student
 };
 class User {
 
     std::string userName;
     int password;
     int userID;
-    UserType userType = UserType::Borrower;
+    UserType userType = UserType::Student;
 
 public:
     std::vector<std::shared_ptr<Book>> borrowedBook;
