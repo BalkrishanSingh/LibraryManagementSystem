@@ -1,4 +1,4 @@
-#include "Library.h"
+#include "library.h"
 #include "string"
 #include <iostream>
 
@@ -17,7 +17,7 @@ User::User(int userID, std::string userName, int password)
     this->password = password;
 }
 
-void Library::RegisterUser(int userId, std::string borrowerName, int password)
+void library::RegisterUser(int userId, std::string borrowerName, int password)
 {
     std::cout << std::endl;
     std::cin >> borrowerName >> userId >> password;
@@ -26,7 +26,7 @@ void Library::RegisterUser(int userId, std::string borrowerName, int password)
 std::string Student::DisplayStudentMenu()
 {
     return R"(
-========== Library Management System (Administrator Menu) ==========
+========== Library Management System (Student Menu) ==========
 Please select an option :
  1. Add Book
  2. Modify Book
@@ -40,7 +40,7 @@ Please select an option :
 std::string Adminstrator::DisplayAdminstratorMenu()
 {
     return R"(
-========== Library Management System (Student Menu) ==========
+========== Library Management System (Administrator Menu) ==========
 Please select an option :
  Student Menu:
  1. Issue a Book

@@ -9,7 +9,7 @@
 #include <memory>
 class Book;
 class User;
-class Library;
+class library;
 
 class Book
 {
@@ -50,7 +50,7 @@ public:
     static std::string DisplayAdminstratorMenu();
 };
 
-class Library
+class library
 {
     std::vector<std::shared_ptr<User>> users;
     std::vector<std::shared_ptr<Book>> books;
