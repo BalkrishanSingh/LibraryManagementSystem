@@ -15,7 +15,6 @@ class Book
 {
     std::string bookName;
     std::string author;
-    std::string publisher;
     int bookID;
 
 public:
@@ -29,25 +28,30 @@ class User
 protected:
     std::string userName;
     int password;
-    int userID;
-
+    User(std::string userName, int password);
 public:
-    std::shared_ptr<Book> borrowedBook;
-    User(int userID, std::string userName, int password);
-
     virtual ~User() = default;
 };
 
 class Student : public User
 {
-public:
-    static std::string DisplayStudentMenu();
+    int userID; //Roll no
+    Student(int userID, std::string userName, int password);
+    std::shared_ptr<Book> borrowedBook;
+    public:
+        void DisplayIssuedBooks();
 };
 
 class Adminstrator : public User
 {
-public:
-    static std::string DisplayAdminstratorMenu();
+
+};
+
+class Menu {
+    static void Registration();
+    static void Login();
+    static void StudentDashboard();
+    static void AdminstratorDashboard();
 };
 
 class library
@@ -60,7 +64,7 @@ class library
     void searchBook();
 
 public:
-    void RegisterUser(int userId, std::string userName, int password);
+    void RegisterStudent(int userId, std::string userName, int password);
     void LoginUser();
 };
 

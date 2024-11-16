@@ -2,30 +2,34 @@
 #include "string"
 #include <iostream>
 
-Book::Book(int bookID, std::string bookName, std::string author, std::string publisher)
+Book::Book(int bookID, std::string bookName, std::string author)
 {
     this->bookID = bookID;
     this->bookName = bookName;
     this->author = author;
-    this->publisher = publisher;
 }
 
-User::User(int userID, std::string userName, int password)
+User::User(std::string userName, int password)
 {
     this->userName = userName;
-    this->userID = userID;
     this->password = password;
 }
 
-void library::RegisterUser(int userId, std::string borrowerName, int password)
+Student::Student(int userID, std::string userName, int password): User(userName, password) {
+    this->userID = userID;
+};
+
+void library::RegisterStudent(int userId, std::string borrowerName, int password)
 {
     std::cout << std::endl;
     std::cin >> borrowerName >> userId >> password;
-    users.push_back(std::make_shared<User>(userId, borrowerName, password));
+    users.push_back(std::make_shared<Student>(userId, borrowerName, password));
 }
-std::string Student::DisplayStudentMenu()
+
+
+void Menu::StudentDashboard()
 {
-    return R"(
+    std::cout << R"(
 ========== Library Management System (Student Menu) ==========
 Please select an option :
  1. Add Book
@@ -37,9 +41,9 @@ Please select an option :
 )";
 }
 
-std::string Adminstrator::DisplayAdminstratorMenu()
+void Menu::AdminstratorDashboard()
 {
-    return R"(
+   std::cout << R"(
 ========== Library Management System (Administrator Menu) ==========
 Please select an option :
  Student Menu:
