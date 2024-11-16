@@ -1,7 +1,9 @@
 #include <iostream>
+#include "library.h"
 
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
+
+    std::cout << Student::DisplayStudentMenu() << std::endl;
     return 0;
 }
