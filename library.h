@@ -19,7 +19,7 @@ class Book
 
 public:
     std::shared_ptr<User> bookBorrower;
-    Book(int bookID, std::string bookName, std::string author, std::string publisher);
+    Book(int bookID, std::string bookName, std::string author);
     std::string BookInformation();
 };
 
