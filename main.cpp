@@ -3,7 +3,6 @@
 
 int main()
 {
-
-    std::cout << Student::DisplayStudentMenu() << std::endl;
+    std::cout<<"Hello from diljot"<<std::endl;
     return 0;
 }
