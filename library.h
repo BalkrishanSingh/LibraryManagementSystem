@@ -36,15 +36,16 @@ public:
 class Student : public User
 {
     int userID; //Roll no
-    Student(int userID, std::string userName, int password);
+
     std::shared_ptr<Book> borrowedBook;
     public:
-        void DisplayIssuedBooks();
+        Student(int userID, std::string userName, int password);
+        void DisplayIssuedBook();
 };
 
-class Adminstrator : public User
-{
-
+class Administrator : public User
+{public:
+    Administrator(std::string userName, int password);
 };
 
 class Menu {
@@ -53,6 +54,8 @@ class Menu {
     static void StudentDashboard();
     static void AdminstratorDashboard();
 };
+
+class
 
 class library
 {

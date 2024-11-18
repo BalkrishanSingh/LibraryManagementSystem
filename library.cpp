@@ -18,7 +18,9 @@ User::User(std::string userName, int password)
 Student::Student(int userID, std::string userName, int password): User(userName, password) {
     this->userID = userID;
 };
+Administrator::Administrator(std::string userName, int password): User(userName, password) {
 
+}
 void library::RegisterStudent(int userId, std::string borrowerName, int password)
 {
     std::cout << std::endl;
