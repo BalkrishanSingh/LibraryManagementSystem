@@ -12,7 +12,8 @@ class User;
 class library;
 
 class Book
-{
+{   
+    bool isissued;
     std::string bookName;
     std::string author;
     int bookID;
@@ -20,7 +21,7 @@ class Book
 public:
     std::shared_ptr<User> bookBorrower;
     Book(int bookID, std::string bookName, std::string author);
-    std::string BookInformation();
+    void BookInformation();
 };
 
 class User
@@ -55,20 +56,20 @@ class Menu {
     static void AdminstratorDashboard();
 };
 
-class
 
 class library
 {
     std::vector<std::shared_ptr<User>> users;
     std::vector<std::shared_ptr<Book>> books;
+
+public:
+    void RegisterStudent(int userId, std::string userName, int password);
+    library();
+    void LoginUser();
     void issueBook();
     void addBook();
     void displayBooks();
     void searchBook();
-
-public:
-    void RegisterStudent(int userId, std::string userName, int password);
-    void LoginUser();
 };
 
 #endif // LIBRARY_H

@@ -1,9 +1,9 @@
 #include <iostream>
-#include "Library.h"
+#include "library.h"
 
 int main()
 {
-    std::shared_ptr<Administrator> administrator = std::make_shared<Administrator>("Admin",12345678);
-    administrator->
+    library lib;
+    lib.displayBooks();
     return 0;
 }

@@ -2,11 +2,24 @@
 #include "string"
 #include <iostream>
 
+library::library() {
+    books.push_back(std::make_shared<Book>(1, "The Great Gatsby", "F. Scott Fitzgerald"));
+    books.push_back(std::make_shared<Book>(2, "To Kill a Mockingbird", "Harper Lee"));
+    books.push_back(std::make_shared<Book>(3, "1984", "George Orwell"));
+    books.push_back(std::make_shared<Book>(4, "Moby Dick", "Herman Melville"));
+    books.push_back(std::make_shared<Book>(5, "Pride and Prejudice", "Jane Austen"));
+}
+
 Book::Book(int bookID, std::string bookName, std::string author)
 {
     this->bookID = bookID;
     this->bookName = bookName;
     this->author = author;
+}
+void Book::BookInformation(){
+    std::cout<<bookID<<" ";
+    std::cout<<bookName<<" ";
+    std::cout<<author<<std::endl;
 }
 
 User::User(std::string userName, int password)
@@ -27,7 +40,11 @@ void library::RegisterStudent(int userId, std::string borrowerName, int password
     std::cin >> borrowerName >> userId >> password;
     users.push_back(std::make_shared<Student>(userId, borrowerName, password));
 }
-
+void library::displayBooks(){
+    for (const auto& book : books) {
+        book->BookInformation();
+    }
+}
 
 void Menu::StudentDashboard()
 {
