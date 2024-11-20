@@ -13,8 +13,7 @@ class Book;
 class User;
 class library;
 
-class Book
-{   
+class Book {
     bool isIssued;
     std::string bookName;
     std::string author;
@@ -22,20 +21,25 @@ class Book
 
 public:
     std::shared_ptr<User> bookBorrower;
-    Book(int bookID, std::string bookName, std::string author);
+    Book(int bookID, const std::string bookName, const std::string author);
     Book(std::ifstream& inFile);
     void Save(std::ofstream& outFile);
     void BookInformation();
+    bool isBookIssued() const { return isIssued; }
+    void setIssued(bool status) { isIssued = status; }
 };
 
-class User
-{
+class User {
 protected:
     std::string userName;
     int password;
-    User(std::string userName, int password);
+
+    User(const std::string userName, int password);
+
 public:
     virtual ~User() = default;
+    std::string getUserName() const { return userName; }
+    int getPassword() const { return password; } 
 };
 
 class Student : public User
@@ -62,28 +66,28 @@ class Administrator : public User
     Administrator(std::string userName, int password);
 };
 
-class Menu {
-    static void Registration();
-    static void Login();
-    static void StudentDashboard();
-    static void AdminstratorDashboard();
-};
-
-
-class library
-{
+class library {
     std::vector<std::shared_ptr<User>> users;
     std::vector<std::shared_ptr<Book>> books;
 
 public:
-    void RegisterStudent(int userId, std::string userName, int password);
     library();
     ~library();
-    void LoginUser();
+    void RegisterStudent(int userID, const std::string userName, int password);
+    void LoginUser(bool isAdmin);
     void issueBook();
     void addBook();
     void displayBooks();
     void searchBook();
+    void displayIssuedBooksForStudent();
+};
+
+class Menu {
+public:
+    static void Registration();
+    static void Login();
+    static void StudentDashboard();
+    static void AdminstratorDashboard();
 };
 
 #endif // LIBRARY_H

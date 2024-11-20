@@ -34,12 +34,6 @@ Student::Student(int userID, std::string userName, int password): User(userName,
 Administrator::Administrator(std::string userName, int password): User(userName, password) {
 
 }
-void library::RegisterStudent(int userId, std::string borrowerName, int password)
-{
-    std::cout << std::endl;
-    std::cin >> borrowerName >> userId >> password;
-    users.push_back(std::make_shared<Student>(userId, borrowerName, password));
-}
 
 void FileManager::SaveBooks(const std::vector<std::shared_ptr<Book>>& books, const std::string& filename) {
     std::ofstream outFile(filename, std::ios::binary);
@@ -114,9 +108,189 @@ void Book::Save(std::ofstream& outFile) {
     outFile.write(reinterpret_cast<const char*>(&isIssued), sizeof(isIssued));
 }
 
-void library::displayBooks(){
+void Student::DisplayIssuedBook() {
+    if (borrowedBook) {
+        std::cout << "Issued Book Details:\n";
+        borrowedBook->BookInformation();
+    } else {
+        std::cout << "No book has been issued to you.\n";
+    }
+}
+
+Administrator::Administrator(std::string userName, int password) : User(userName, password) {}
+
+// library Class Definitions
+library::library() {}
+
+library::~library() {}
+
+void library::RegisterStudent(int userID, const std::string userName, int password) {
+    auto student = std::make_shared<Student>(userID, userName, password);
+    users.push_back(student);
+    std::cout << "Student registered successfully.\n";
+}
+
+void library::LoginUser(bool isAdmin) {
+    std::string userName;
+    int password;
+
+    std::cout << "Enter Username: ";
+    std::cin >> userName;
+    std::cout << "Enter Password: ";
+    std::cin >> password;
+
+    for (const auto& user : users) {
+        if (isAdmin && dynamic_cast<Administrator*>(user.get())) {
+            if (user->getUserName() == userName && user->getPassword() == password) {
+                std::cout << "Admin login successful!\n";
+                Menu::AdminstratorDashboard();
+                return;
+            }
+        } else if (!isAdmin && dynamic_cast<Student*>(user.get())) {
+            if (user->getUserName() == userName && user->getPassword() == password) {
+                std::cout << "Student login successful!\n";
+                Menu::StudentDashboard();
+                return;
+            }
+        }
+    }
+
+    std::cout << "Invalid credentials!\n";
+}
+
+void library::issueBook() {
+    int bookID;
+    std::cout << "Enter Book ID to issue: ";
+    std::cin >> bookID;
+
+    for (auto& book : books) {
+        if (!book->isBookIssued()) {
+            book->setIssued(true);
+            std::cout << "Book issued successfully.\n";
+            return;
+        }
+    }
+
+    std::cout << "Book not available.\n";
+}
+
+void library::addBook() {
+    int bookID;
+    std::string bookName, author;
+
+    std::cout << "Enter Book ID: ";
+    std::cin >> bookID;
+    std::cout << "Enter Book Name: ";
+    std::cin >> bookName;
+    std::cout << "Enter Author Name: ";
+    std::cin >> author;
+
+    auto newBook = std::make_shared<Book>(bookID, bookName, author);
+    books.push_back(newBook);
+
+    std::cout << "Book added successfully.\n";
+}
+
+void library::displayBooks() {
+    std::cout << "Books in the library:\n";
     for (const auto& book : books) {
         book->BookInformation();
+    }
+}
+
+void library::searchBook() {
+    int bookID;
+    std::cout << "Enter Book ID to search: ";
+    std::cin >> bookID;
+
+    for (const auto& book : books) {
+        if (book->isBookIssued()) {
+            book->BookInformation();
+            return;
+        }
+    }
+
+    std::cout << "Book not found.\n";
+}
+
+void library::displayIssuedBooksForStudent() {
+    std::string studentName;
+    std::cout << "Enter your username: ";
+    std::cin >> studentName;
+
+    for (const auto& user : users) {
+        if (auto student = std::dynamic_pointer_cast<Student>(user)) {
+            if (student->getUserName() == studentName) {
+                student->DisplayIssuedBook();
+                return;
+            }
+        }
+    }
+
+    std::cout << "Student not found or no books issued.\n";
+}
+
+// Menu Class Definitions
+void Menu::Registration() {
+    std::cout << "Registration Menu\n1. Register as Student\n2. Exit\n";
+    int choice;
+    std::cin >> choice;
+
+    if (choice == 1) {
+        int userID, password;
+        std::string userName;
+        std::cout << "Enter User ID: ";
+        std::cin >> userID;
+        std::cout << "Enter Username: ";
+        std::cin >> userName;
+        std::cout << "Enter Password: ";
+        std::cin >> password;
+
+        library lib;
+        lib.RegisterStudent(userID, userName, password);
+    }
+}
+
+void Menu::Login() {
+    std::cout << "Login Menu\n1. Student Login\n2. Admin Login\n3. Exit\n";
+    int choice;
+    std::cin >> choice;
+
+    library lib;
+    if (choice == 1) {
+        lib.LoginUser(false);
+    } else if (choice == 2) {
+        lib.LoginUser(true);
+    }
+}
+
+void Menu::StudentDashboard() {
+    std::cout << "Student Dashboard\n1. View Issued Books\n2. Exit\n";
+    int choice;
+    std::cin >> choice;
+
+    if (choice == 1) {
+        library lib;
+        lib.displayIssuedBooksForStudent();
+    }
+}
+
+void Menu::AdminstratorDashboard() {
+    std::cout << "Administrator Dashboard\n1. Add Book\n2. Issue Book\n3. Display Books\n4. Exit\n";
+    int choice;
+    std::cin >> choice;
+
+    library lib;
+    switch (choice) {
+        case 1:
+            lib.addBook();
+            break;
+        case 2:
+            lib.issueBook();
+            break;
+        case 3:
+            lib.displayBooks();
+            break;
     }
 }
 
