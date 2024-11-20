@@ -36,6 +36,8 @@ protected:
     User(std::string userName, int password);
 public:
     virtual ~User() = default;
+
+    
 };
 
 class Student : public User
@@ -44,8 +46,11 @@ class Student : public User
 
     std::shared_ptr<Book> borrowedBook;
     public:
+        void SaveStudent(std::ofstream& outFile);
         Student(int userID, std::string userName, int password);
         void DisplayIssuedBook();
+        Student(std::ifstream& inFile);
+        void studentInformation();
 };
 
     class FileManager
@@ -54,6 +59,11 @@ class Student : public User
         static void SaveBooks(const std::vector<std::shared_ptr<Book>>& books, const std::string& filename);
 
         static void LoadBooks(std::vector<std::shared_ptr<Book>>& books, const std::string& filename);
+            // Saves the users to a binary file
+        static void SaveUsers(const std::vector<std::shared_ptr<User>>& users, const std::string& filename);
+
+    // Loads the users from a binary file
+        static void LoadUsers(std::vector<std::shared_ptr<User>>& users, const std::string& filename);
 
     };
 
@@ -74,6 +84,10 @@ class library
 {
     std::vector<std::shared_ptr<User>> users;
     std::vector<std::shared_ptr<Book>> books;
+    std::vector<std::shared_ptr<Student>> students;
+    void AddDummyBooksToBinaryFile();
+    void AddDummyStudentsToBinaryFile();
+    
 
 public:
     void RegisterStudent(int userId, std::string userName, int password);
@@ -84,6 +98,7 @@ public:
     void addBook();
     void displayBooks();
     void searchBook();
+    void displaystudents();
 };
 
 #endif // LIBRARY_H

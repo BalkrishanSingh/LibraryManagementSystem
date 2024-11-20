@@ -4,6 +4,6 @@
 int main()
 {
     library lib;
-    lib.displayBooks();
+    lib.displaystudents();
     return 0;
 }
