@@ -4,6 +4,8 @@
 
 #ifndef LIBRARY_H
 #define LIBRARY_H
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -13,7 +15,7 @@ class library;
 
 class Book
 {   
-    bool isissued;
+    bool isIssued;
     std::string bookName;
     std::string author;
     int bookID;
@@ -21,6 +23,8 @@ class Book
 public:
     std::shared_ptr<User> bookBorrower;
     Book(int bookID, std::string bookName, std::string author);
+    Book(std::ifstream);
+    void Save(std::ofstream outFile);
     void BookInformation();
 };
 
@@ -43,6 +47,15 @@ class Student : public User
         Student(int userID, std::string userName, int password);
         void DisplayIssuedBook();
 };
+
+    class FileManager
+    {
+    public:
+        static void saveBooks(const std::vector<std::shared_ptr<Book>>& books, const std::string& filename);
+
+        static void loadBooks(std::vector<std::shared_ptr<Book>>& books, const std::string& filename);
+
+    };
 
 class Administrator : public User
 {public:
