@@ -86,7 +86,7 @@ class Menu {
 public:
     static void Registration(library& lib);
     static void Login(library& lib);
-    static void StudentDashboard(library& lib);
+    static void StudentDashboard(library& lib,std::shared_ptr<Student> activeStudent);
     static void AdminstratorDashboard(library& lib);
 };
 

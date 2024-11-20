@@ -2,13 +2,7 @@
 #include "string"
 #include <iostream>
 
-library::library() {
-    FileManager::LoadBooks(books, "./books.dat");
 
-}
-library::~library() {
-    FileManager::SaveBooks(books, "./books.dat");
-}
 Book::Book(int bookID, std::string bookName, std::string author)
 {
     this->bookID = bookID;
@@ -117,9 +111,16 @@ void Student::DisplayIssuedBook() {
     }
 }
 
-Administrator::Administrator(std::string userName, int password) : User(userName, password) {}
 
 // library Class Definitions
+
+library::library() {
+    FileManager::LoadBooks(books, "./books.dat");
+
+}
+library::~library() {
+    FileManager::SaveBooks(books, "./books.dat");
+}
 
 void library::RegisterStudent(int userID, const std::string userName, int password) {
     auto student = std::make_shared<Student>(userID, userName, password);
@@ -140,13 +141,13 @@ void library::LoginUser(bool isAdmin) {
         if (isAdmin && dynamic_cast<Administrator*>(user.get())) {
             if (user->getUserName() == userName && user->getPassword() == password) {
                 std::cout << "Admin login successful!\n";
-                Menu::AdminstratorDashboard();
+                Menu::AdminstratorDashboard(*this);
                 return;
             }
         } else if (!isAdmin && dynamic_cast<Student*>(user.get())) {
             if (user->getUserName() == userName && user->getPassword() == password) {
                 std::cout << "Student login successful!\n";
-                Menu::StudentDashboard();
+                Menu::StudentDashboard(*this,std::dynamic_pointer_cast<Student>(user));
                 return;
             }
         }
@@ -243,29 +244,37 @@ void Menu::Registration(library& lib) {
         std::cout << "Enter Password: ";
         std::cin >> password;
 
-        lib.RegisterStudent(userID, userName, password);
+         lib.RegisterStudent(userID, userName, password);
     }
+
 }
 
 void Menu::Login(library& lib) {
     std::cout << "Login Menu\n1. Student Login\n2. Admin Login\n3. Exit\n";
     int choice;
     std::cin >> choice;
-
-    if (choice == 1) {
-        lib.LoginUser(false);
-    } else if (choice == 2) {
-        lib.LoginUser(true);
+        if (choice == 1) {
+            lib.LoginUser(false);
+        } else if (choice == 2) {
+            lib.LoginUser(true);
+        }
     }
-}
 
-void Menu::StudentDashboard(library& lib) {
+
+void Menu::StudentDashboard(library& lib, std::shared_ptr<Student> activeStudent) {
     std::cout << "Student Dashboard\n1. View Issued Books\n2. Exit\n";
     int choice;
     std::cin >> choice;
-
-    if (choice == 1) {
-        lib.displayIssuedBooksForStudent();
+    bool running = true;
+    while(running) {
+        switch (choice) {
+            case 1:
+                activeStudent->DisplayIssuedBook();
+                break;
+            case 2:
+                running = false;
+                break;
+        }
     }
 }
 
@@ -273,17 +282,20 @@ void Menu::AdminstratorDashboard(library& lib) {
     std::cout << "Administrator Dashboard\n1. Add Book\n2. Issue Book\n3. Display Books\n4. Exit\n";
     int choice;
     std::cin >> choice;
-
-    library lib;
-    switch (choice) {
-        case 1:
-            lib.addBook();
+    bool running = true;
+    while(running) {
+        switch (choice) {
+            case 1:
+                lib.addBook();
             break;
-        case 2:
-            lib.issueBook();
+            case 2:
+                lib.issueBook();
             break;
-        case 3:
-            lib.displayBooks();
+            case 3:
+                lib.displayBooks();
             break;
+            case 4:
+                running = false;
+        }
     }
 }
