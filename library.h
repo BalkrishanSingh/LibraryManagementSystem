@@ -23,8 +23,8 @@ class Book
 public:
     std::shared_ptr<User> bookBorrower;
     Book(int bookID, std::string bookName, std::string author);
-    Book(std::ifstream);
-    void Save(std::ofstream outFile);
+    Book(std::ifstream& inFile);
+    void Save(std::ofstream& outFile);
     void BookInformation();
 };
 
@@ -51,9 +51,9 @@ class Student : public User
     class FileManager
     {
     public:
-        static void saveBooks(const std::vector<std::shared_ptr<Book>>& books, const std::string& filename);
+        static void SaveBooks(const std::vector<std::shared_ptr<Book>>& books, const std::string& filename);
 
-        static void loadBooks(std::vector<std::shared_ptr<Book>>& books, const std::string& filename);
+        static void LoadBooks(std::vector<std::shared_ptr<Book>>& books, const std::string& filename);
 
     };
 
@@ -78,6 +78,7 @@ class library
 public:
     void RegisterStudent(int userId, std::string userName, int password);
     library();
+    ~library();
     void LoginUser();
     void issueBook();
     void addBook();

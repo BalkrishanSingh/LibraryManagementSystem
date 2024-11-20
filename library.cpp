@@ -3,13 +3,12 @@
 #include <iostream>
 
 library::library() {
-    books.push_back(std::make_shared<Book>(1, "The Great Gatsby", "F. Scott Fitzgerald"));
-    books.push_back(std::make_shared<Book>(2, "To Kill a Mockingbird", "Harper Lee"));
-    books.push_back(std::make_shared<Book>(3, "1984", "George Orwell"));
-    books.push_back(std::make_shared<Book>(4, "Moby Dick", "Herman Melville"));
-    books.push_back(std::make_shared<Book>(5, "Pride and Prejudice", "Jane Austen"));
-}
+    FileManager::LoadBooks(books, "./books.dat");
 
+}
+library::~library() {
+    FileManager::SaveBooks(books, "./books.dat");
+}
 Book::Book(int bookID, std::string bookName, std::string author)
 {
     this->bookID = bookID;
@@ -42,7 +41,29 @@ void library::RegisterStudent(int userId, std::string borrowerName, int password
     users.push_back(std::make_shared<Student>(userId, borrowerName, password));
 }
 
-void FileManager::loadBooks(std::vector<std::shared_ptr<Book>>& books, const std::string& filename) {
+void FileManager::SaveBooks(const std::vector<std::shared_ptr<Book>>& books, const std::string& filename) {
+    std::ofstream outFile(filename, std::ios::binary);
+    if (!outFile) {
+        std::cerr << "Error opening file for saving.\n";
+        return;
+    }
+
+    // Write the count of books
+    size_t count = books.size();
+    outFile.write(reinterpret_cast<const char*>(&count), sizeof(count));
+
+    // Write each book using its Save method
+    for (const auto& book : books) {
+        book->Save(outFile);  // Call the Save method of each book
+    }
+
+    // Check if writing was successful
+    if (!outFile) {
+        std::cerr << "Error writing to file!\n";
+    }
+}
+
+void FileManager::LoadBooks(std::vector<std::shared_ptr<Book>>& books, const std::string& filename) {
     std::ifstream inFile(filename, std::ios::binary);
     if (!inFile) {
         std::cerr << "Error opening file for loading.\n";
@@ -58,31 +79,41 @@ void FileManager::loadBooks(std::vector<std::shared_ptr<Book>>& books, const std
 }
 
 
-Book::Book(std::ifstream inFile) {
-        inFile.read(reinterpret_cast<char*>(&bookID), sizeof(bookID));
-        size_t nameSize, authorSize;
-        inFile.read(reinterpret_cast<char*>(&nameSize), sizeof(nameSize));
-        bookName.resize(nameSize);
-        inFile.read(&bookName[0], nameSize);
-        inFile.read(reinterpret_cast<char*>(&authorSize), sizeof(authorSize));
-        author.resize(authorSize);
-        inFile.read(&author[0], authorSize);
-        inFile.read(reinterpret_cast<char*>(&isIssued), sizeof(isIssued));
-    }
+Book::Book(std::ifstream& inFile) {
+    inFile.read(reinterpret_cast<char*>(&bookID), sizeof(bookID));
 
-void Book::Save(std::ofstream outFile) {
+    size_t nameSize;
+    inFile.read(reinterpret_cast<char*>(&nameSize), sizeof(nameSize));
+    bookName.resize(nameSize);
+    inFile.read(&bookName[0], nameSize);
 
+    size_t authorSize;
+    inFile.read(reinterpret_cast<char*>(&authorSize), sizeof(authorSize));
+    author.resize(authorSize);
+    inFile.read(&author[0], authorSize);
+
+    inFile.read(reinterpret_cast<char*>(&isIssued), sizeof(isIssued));
+}
+
+
+void Book::Save(std::ofstream& outFile) {
+    // Write the bookID (an integer)
     outFile.write(reinterpret_cast<const char*>(&bookID), sizeof(bookID));
+
+    // Write the size of the bookName string and then the string itself
     size_t nameSize = bookName.size();
-    size_t authorSize = author.size();
     outFile.write(reinterpret_cast<const char*>(&nameSize), sizeof(nameSize));
     outFile.write(bookName.c_str(), nameSize);
+
+    // Write the size of the author string and then the string itself
+    size_t authorSize = author.size();
     outFile.write(reinterpret_cast<const char*>(&authorSize), sizeof(authorSize));
     outFile.write(author.c_str(), authorSize);
+
+    // Write the isIssued flag (bool)
     outFile.write(reinterpret_cast<const char*>(&isIssued), sizeof(isIssued));
 }
 
-}
 void library::displayBooks(){
     for (const auto& book : books) {
         book->BookInformation();
