@@ -84,10 +84,10 @@ public:
 
 class Menu {
 public:
-    static void Registration();
-    static void Login();
-    static void StudentDashboard();
-    static void AdminstratorDashboard();
+    static void Registration(library& lib);
+    static void Login(library& lib);
+    static void StudentDashboard(library& lib);
+    static void AdminstratorDashboard(library& lib);
 };
 
 #endif // LIBRARY_H

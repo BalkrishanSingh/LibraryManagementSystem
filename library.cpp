@@ -120,9 +120,6 @@ void Student::DisplayIssuedBook() {
 Administrator::Administrator(std::string userName, int password) : User(userName, password) {}
 
 // library Class Definitions
-library::library() {}
-
-library::~library() {}
 
 void library::RegisterStudent(int userID, const std::string userName, int password) {
     auto student = std::make_shared<Student>(userID, userName, password);
@@ -231,7 +228,7 @@ void library::displayIssuedBooksForStudent() {
 }
 
 // Menu Class Definitions
-void Menu::Registration() {
+void Menu::Registration(library& lib) {
     std::cout << "Registration Menu\n1. Register as Student\n2. Exit\n";
     int choice;
     std::cin >> choice;
@@ -246,17 +243,15 @@ void Menu::Registration() {
         std::cout << "Enter Password: ";
         std::cin >> password;
 
-        library lib;
         lib.RegisterStudent(userID, userName, password);
     }
 }
 
-void Menu::Login() {
+void Menu::Login(library& lib) {
     std::cout << "Login Menu\n1. Student Login\n2. Admin Login\n3. Exit\n";
     int choice;
     std::cin >> choice;
 
-    library lib;
     if (choice == 1) {
         lib.LoginUser(false);
     } else if (choice == 2) {
@@ -264,18 +259,17 @@ void Menu::Login() {
     }
 }
 
-void Menu::StudentDashboard() {
+void Menu::StudentDashboard(library& lib) {
     std::cout << "Student Dashboard\n1. View Issued Books\n2. Exit\n";
     int choice;
     std::cin >> choice;
 
     if (choice == 1) {
-        library lib;
         lib.displayIssuedBooksForStudent();
     }
 }
 
-void Menu::AdminstratorDashboard() {
+void Menu::AdminstratorDashboard(library& lib) {
     std::cout << "Administrator Dashboard\n1. Add Book\n2. Issue Book\n3. Display Books\n4. Exit\n";
     int choice;
     std::cin >> choice;
@@ -292,33 +286,4 @@ void Menu::AdminstratorDashboard() {
             lib.displayBooks();
             break;
     }
-}
-
-
-void Menu::StudentDashboard()
-{
-    std::cout << R"(
-========== Library Management System (Student Menu) ==========
-Please select an option :
- 1. Add Book
- 2. Modify Book
- 3. Delete Book
- 4. View All Books
- 5. Exit
-=====================================================================
-)";
-}
-
-void Menu::AdminstratorDashboard()
-{
-   std::cout << R"(
-========== Library Management System (Administrator Menu) ==========
-Please select an option :
- Student Menu:
- 1. Issue a Book
- 2. Return a Book
- 3. View Issued Book
- 4. Exit
-===============================================================
-)";
 }
