@@ -29,7 +29,9 @@ public:
     void Save(std::ofstream &outFile);
 
     void BookInformation();
-
+    int getBookID() {
+        return bookID;
+    }
     bool isBookIssued() const { return isIssued; }
     void setIssued(bool status) { isIssued = status; }
 };
@@ -46,6 +48,7 @@ public:
 
     std::string getUserName() const { return userName; }
     int getPassword() const { return password; }
+
 };
 
 class Student : public User {
@@ -56,9 +59,14 @@ class Student : public User {
         void SaveStudent(std::ofstream& outFile);
         Student(int userID, std::string userName, int password);
         void DisplayIssuedBook();
+        std::shared_ptr<Book> getBorrowedBook() const { return borrowedBook; }
         void setBorrowedBook(std::shared_ptr<Book> borrowedBook) {
          this->borrowedBook = borrowedBook;
         }
+        bool hasIssuedBook() {
+            return borrowedBook != nullptr;
+        }
+
         Student(std::ifstream& inFile);
         void studentInformation();
 };
@@ -82,6 +90,7 @@ public:
 };
 
 class library {
+
     std::vector<std::shared_ptr<User> > users;
     std::vector<std::shared_ptr<Book> > books;
 
@@ -105,6 +114,7 @@ public:
     void displayIssuedBooksForStudent();
 
     void displaystudents();
+    void returnBook(std::shared_ptr<Student> student);
 
     void AddDummyStudentsToBinaryFile();
     void AddDummyBooksToBinaryFile();

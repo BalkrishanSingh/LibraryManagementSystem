@@ -20,6 +20,8 @@ void library::AddDummyStudentsToBinaryFile() {
 }
 
 library::library() {
+        AddDummyBooksToBinaryFile();
+        AddDummyStudentsToBinaryFile();
     FileManager::LoadBooks(books, "./books.dat");
     FileManager::LoadUsers(users, "./students.dat");
 }
@@ -78,7 +80,7 @@ void FileManager::SaveBooks(const std::vector<std::shared_ptr<Book> > &books, co
 void FileManager::LoadBooks(std::vector<std::shared_ptr<Book> > &books, const std::string &filename) {
     std::ifstream inFile(filename, std::ios::binary);
     if (!inFile) {
-        // std::cerr << "Error opening file for loading.\n";
+        std::cerr << "Error opening file for loading book data.\n";
         return;
     }
     size_t count;
@@ -89,7 +91,7 @@ void FileManager::LoadBooks(std::vector<std::shared_ptr<Book> > &books, const st
         books.push_back(book);
     }
     if (!inFile) {
-        std::cerr << "Error reading from file!\n";
+        std::cerr << "Error reading from book data file.!\n";
     }
 }
 
@@ -113,7 +115,7 @@ void FileManager::SaveUsers(const std::vector<std::shared_ptr<User>>& users, con
 
     // Check if writing was successful
     if (!outFile) {
-        std::cerr << "Error writing to file!\n";
+        std::cerr << "Error writing to user data file!\n";
     }
 }
 void FileManager::LoadUsers(std::vector<std::shared_ptr<User>>& users, const std::string& filename) {
@@ -135,7 +137,7 @@ void FileManager::LoadUsers(std::vector<std::shared_ptr<User>>& users, const std
 
     // Check if reading was successful
     if (!inFile) {
-        std::cerr << "Error reading from file!\n";
+        std::cerr << "Error reading from user data file!\n";
     }
 }
 Student::Student(std::ifstream& inFile):User("", 0) {
@@ -237,20 +239,30 @@ void library::issueBook(std::shared_ptr<Student> student) {
     int bookID;
     std::cout << "Enter Book ID to issue: ";
     std::cin >> bookID;
-
-    for (auto &book: books) {
-        //TODO verify book id, currently it just issues every book.
-        if (!book->isBookIssued()) {
-            book->setIssued(true);
-            student->setBorrowedBook(book);
-            std::cout << "Book issued successfully.\n";
-            return;
+    if (!student->hasIssuedBook()) {
+        for (auto &book: books) {
+            //TODO verify book id, currently it just issues every book.
+            if (book->getBookID() == bookID &&!(book->isBookIssued())) {
+                book->setIssued(true);
+                student->setBorrowedBook(book);
+                std::cout << "Book issued successfully.\n";
+                return;
+            }
         }
     }
 
     std::cout << "Book not available.\n";
 }
-
+void library::returnBook(std::shared_ptr<Student> student) {
+        if (student->hasIssuedBook()) {
+                    student->getBorrowedBook()->setIssued(true);
+                    student->setBorrowedBook(nullptr);
+                    std::cout << "Book returned successfully.\n";
+                }
+                else {
+                    std::cout << "You don't have any issued books..\n";
+                }
+            }
 void library::addBook() {
     int bookID;
     std::string bookName, author;
@@ -375,7 +387,7 @@ void Menu::StudentDashboard(library &lib, std::shared_ptr<Student> activeStudent
             case 2:
                 lib.issueBook(activeStudent);
             case 3:
-                //TODO return book.
+                lib.returnBook(activeStudent);
                 break;
             case 4:
                 activeStudent->DisplayIssuedBook();
