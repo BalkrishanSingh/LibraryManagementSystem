@@ -260,11 +260,13 @@ void Menu::Login(library &lib) {
 
 
 void Menu::StudentDashboard(library &lib, std::shared_ptr<Student> activeStudent) {
-    std::cout << "Student Dashboard\n1. View Issued Books\n2. Exit\n";
-    int choice;
-    std::cin >> choice;
+
+
     bool running = true;
     while (running) {
+        std::cout << "Student Dashboard\n1. View Issued Books\n2. Exit\n";
+        int choice;
+        std::cin >> choice;
         switch (choice) {
             case 1:
                 activeStudent->DisplayIssuedBook();
