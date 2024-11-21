@@ -1,36 +1,36 @@
 #include "library.h"
 #include "string"
 #include <iostream>
-    void library::AddDummyBooksToBinaryFile() {
 
+void library::AddDummyBooksToBinaryFile() {
     books.push_back(std::make_shared<Book>(101, "C++ Programming", "Bjarne Stroustrup"));
     books.push_back(std::make_shared<Book>(102, "Introduction to Algorithms", "Thomas H. Cormen"));
     books.push_back(std::make_shared<Book>(103, "Clean Code", "Robert C. Martin"));
     books.push_back(std::make_shared<Book>(104, "The Pragmatic Programmer", "Andrew Hunt"));
     books.push_back(std::make_shared<Book>(105, "Design Patterns", "Erich Gamma"));
-    //TODO disallow issuing another book if one is already issued.
 }
+
 //TODO Add input validation for username (Capitalization ignore).
 void library::AddDummyStudentsToBinaryFile() {
     // Add some dummy students
-    users.push_back(std::make_shared<Administrator>("Bk", 1234));
+
     users.push_back(std::make_shared<Student>(101, "Alice", 1234));
     users.push_back(std::make_shared<Student>(102, "Bob", 5678));
     users.push_back(std::make_shared<Student>(103, "Charlie", 91011));
 }
 
 library::library() {
-        AddDummyBooksToBinaryFile();
-        AddDummyStudentsToBinaryFile();
+    administrator = std::make_shared<Administrator>("Bk", 1234);
     FileManager::LoadBooks(books, "./books.dat");
     FileManager::LoadUsers(users, "./students.dat");
 }
+
 library::~library() {
     FileManager::SaveBooks(books, "./books.dat");
     FileManager::SaveUsers(users, "./students.dat");
 }
-Book::Book(int bookID, std::string bookName, std::string author)
-{
+
+Book::Book(int bookID, std::string bookName, std::string author) {
     this->bookID = bookID;
     this->bookName = bookName;
     this->author = author;
@@ -95,7 +95,7 @@ void FileManager::LoadBooks(std::vector<std::shared_ptr<Book> > &books, const st
     }
 }
 
-void FileManager::SaveUsers(const std::vector<std::shared_ptr<User>>& users, const std::string& filename) {
+void FileManager::SaveUsers(const std::vector<std::shared_ptr<User> > &users, const std::string &filename) {
     std::ofstream outFile(filename, std::ios::binary);
     if (!outFile) {
         std::cerr << "Error opening file for saving users.\n";
@@ -104,12 +104,12 @@ void FileManager::SaveUsers(const std::vector<std::shared_ptr<User>>& users, con
 
     // Write the count of users (all are students in this case)
     size_t count = users.size();
-    outFile.write(reinterpret_cast<const char*>(&count), sizeof(count));
+    outFile.write(reinterpret_cast<const char *>(&count), sizeof(count));
 
     // Loop through each user and call the SaveStudent method for each Student
-    for (const auto& user : users) {
+    for (const auto &user: users) {
         if (auto student = std::dynamic_pointer_cast<Student>(user)) {
-            student->SaveStudent(outFile);  // Call SaveStudent to save student data
+            student->SaveStudent(outFile); // Call SaveStudent to save student data
         }
     }
 
@@ -118,7 +118,8 @@ void FileManager::SaveUsers(const std::vector<std::shared_ptr<User>>& users, con
         std::cerr << "Error writing to user data file!\n";
     }
 }
-void FileManager::LoadUsers(std::vector<std::shared_ptr<User>>& users, const std::string& filename) {
+
+void FileManager::LoadUsers(std::vector<std::shared_ptr<User> > &users, const std::string &filename) {
     std::ifstream inFile(filename, std::ios::binary);
     if (!inFile) {
         std::cerr << "Error opening file for loading users.\n";
@@ -126,10 +127,9 @@ void FileManager::LoadUsers(std::vector<std::shared_ptr<User>>& users, const std
     }
 
     size_t count;
-    inFile.read(reinterpret_cast<char*>(&count), sizeof(count));
+    inFile.read(reinterpret_cast<char *>(&count), sizeof(count));
 
     users.clear();
-        //TODO Inability to read Adminstrator from file.
     for (size_t i = 0; i < count; ++i) {
         auto student = std::make_shared<Student>(inFile);
         users.push_back(student);
@@ -140,20 +140,20 @@ void FileManager::LoadUsers(std::vector<std::shared_ptr<User>>& users, const std
         std::cerr << "Error reading from user data file!\n";
     }
 }
-Student::Student(std::ifstream& inFile):User("", 0) {
+
+Student::Student(std::ifstream &inFile): User("", 0) {
     // Read the size of the userName string and then the string itself
     size_t nameSize;
-    inFile.read(reinterpret_cast<char*>(&nameSize), sizeof(nameSize));
+    inFile.read(reinterpret_cast<char *>(&nameSize), sizeof(nameSize));
     userName.resize(nameSize);
     inFile.read(&userName[0], nameSize);
 
     // Read the password
-    inFile.read(reinterpret_cast<char*>(&password), sizeof(password));
+    inFile.read(reinterpret_cast<char *>(&password), sizeof(password));
 
     // Read the userID (roll number)
-    inFile.read(reinterpret_cast<char*>(&userID), sizeof(userID));
+    inFile.read(reinterpret_cast<char *>(&userID), sizeof(userID));
 }
-
 
 
 Book::Book(std::ifstream &inFile) {
@@ -215,23 +215,23 @@ void library::LoginUser(bool isAdmin) {
     std::cin >> userName;
     std::cout << "Enter Password: ";
     std::cin >> password;
-
-    for (const auto &user: users) {
-        if (isAdmin && dynamic_cast<Administrator *>(user.get())) {
-            if (user->getUserName() == userName && user->getPassword() == password) {
-                std::cout << "Admin login successful!\n";
-                Menu::AdministratorDashboard(*this);
-                return;
-            }
-        } else if (!isAdmin && dynamic_cast<Student *>(user.get())) {
-            if (user->getUserName() == userName && user->getPassword() == password) {
-                std::cout << "Student login successful!\n";
-                Menu::StudentDashboard(*this, std::dynamic_pointer_cast<Student>(user));
-                return;
+    if (!isAdmin) {
+        for (const auto &user: users) {
+            if (dynamic_cast<Student *>(user.get())) {
+                if (user->getUserName() == userName && user->getPassword() == password) {
+                    std::cout << "Student login successful!\n";
+                    Menu::StudentDashboard(*this, std::dynamic_pointer_cast<Student>(user));
+                    return;
+                }
             }
         }
+    } else {
+        if (administrator->getUserName() == userName && administrator->getPassword() == password) {
+            std::cout << "Admin login successful!\n";
+            Menu::AdministratorDashboard(*this);
+            return;
+        }
     }
-
     std::cout << "Invalid credentials!\n";
 }
 
@@ -241,8 +241,7 @@ void library::issueBook(std::shared_ptr<Student> student) {
     std::cin >> bookID;
     if (!student->hasIssuedBook()) {
         for (auto &book: books) {
-            //TODO verify book id, currently it just issues every book.
-            if (book->getBookID() == bookID &&!(book->isBookIssued())) {
+            if (book->getBookID() == bookID && !(book->isBookIssued())) {
                 book->setIssued(true);
                 student->setBorrowedBook(book);
                 std::cout << "Book issued successfully.\n";
@@ -253,16 +252,17 @@ void library::issueBook(std::shared_ptr<Student> student) {
 
     std::cout << "Book not available.\n";
 }
+
 void library::returnBook(std::shared_ptr<Student> student) {
-        if (student->hasIssuedBook()) {
-                    student->getBorrowedBook()->setIssued(true);
-                    student->setBorrowedBook(nullptr);
-                    std::cout << "Book returned successfully.\n";
-                }
-                else {
-                    std::cout << "You don't have any issued books..\n";
-                }
-            }
+    if (student->hasIssuedBook()) {
+        student->getBorrowedBook()->setIssued(true);
+        student->setBorrowedBook(nullptr);
+        std::cout << "Book returned successfully.\n";
+    } else {
+        std::cout << "You don't have any issued books..\n";
+    }
+}
+
 void library::addBook() {
     int bookID;
     std::string bookName, author;
@@ -286,30 +286,33 @@ void library::displayBooks() {
         book->BookInformation();
     }
 }
-void library::displaystudents(){
-    for (const auto& user: users) {
-         std::dynamic_pointer_cast<Student>(user)->studentInformation();
+
+void library::displaystudents() {
+    for (const auto &user: users) {
+        std::dynamic_pointer_cast<Student>(user)->studentInformation();
     }
 }
+
 void Student::studentInformation() {
     std::cout << "Student ID: " << userID
-              << "\nName: " << userName
-              << "\nPassword: " << password<<std::endl;
+            << "\nName: " << userName
+            << "\nPassword: " << password << std::endl;
 }
 
-void Student::SaveStudent(std::ofstream& outFile) {
+void Student::SaveStudent(std::ofstream &outFile) {
     // Write the size of the userName string and then the string itself
     size_t nameSize = userName.size();
-    outFile.write(reinterpret_cast<const char*>(&nameSize), sizeof(nameSize));
+    outFile.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
     outFile.write(userName.c_str(), nameSize);
 
     // Write the password
-    outFile.write(reinterpret_cast<const char*>(&password), sizeof(password));
+    outFile.write(reinterpret_cast<const char *>(&password), sizeof(password));
 
 
     // Write the userID (roll number)
-    outFile.write(reinterpret_cast<const char*>(&userID), sizeof(userID));
+    outFile.write(reinterpret_cast<const char *>(&userID), sizeof(userID));
 }
+
 void library::searchBook() {
     int bookID;
     std::cout << "Enter Book ID to search: ";
@@ -374,7 +377,6 @@ void Menu::Login(library &lib) {
 
 
 void Menu::StudentDashboard(library &lib, std::shared_ptr<Student> activeStudent) {
-
     bool running = true;
     while (running) {
         std::cout << "Student Dashboard\n1.Display Books\n2.Issue Book\n3.Return Book\n4.View Issued Books\n5. Exit\n";
@@ -401,7 +403,6 @@ void Menu::StudentDashboard(library &lib, std::shared_ptr<Student> activeStudent
 }
 
 void Menu::AdministratorDashboard(library &lib) {
-
     bool running = true;
     while (running) {
         std::cout << "Administrator Dashboard\n1. Add Book\n2. Display Users\n3. Display Books\n4. Exit\n";
