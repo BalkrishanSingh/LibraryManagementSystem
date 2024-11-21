@@ -8,21 +8,20 @@
     books.push_back(std::make_shared<Book>(103, "Clean Code", "Robert C. Martin"));
     books.push_back(std::make_shared<Book>(104, "The Pragmatic Programmer", "Andrew Hunt"));
     books.push_back(std::make_shared<Book>(105, "Design Patterns", "Erich Gamma"));
-
+    //TODO disallow issuing another book if one is already issued.
 }
+//TODO Add input validation for username (Capitalization ignore).
 void library::AddDummyStudentsToBinaryFile() {
     // Add some dummy students
+    users.push_back(std::make_shared<Administrator>("Bk", 1234));
     users.push_back(std::make_shared<Student>(101, "Alice", 1234));
     users.push_back(std::make_shared<Student>(102, "Bob", 5678));
-    users.push_back(std::make_shared<Student>(103, "Charlie", 91011)); // Student ID: 103, Name: Charlie, Password: 91011
+    users.push_back(std::make_shared<Student>(103, "Charlie", 91011));
 }
 
 library::library() {
-    library::AddDummyBooksToBinaryFile();
     FileManager::LoadBooks(books, "./books.dat");
-    library::AddDummyStudentsToBinaryFile();
     FileManager::LoadUsers(users, "./students.dat");
-
 }
 library::~library() {
     FileManager::SaveBooks(books, "./books.dat");
@@ -89,6 +88,9 @@ void FileManager::LoadBooks(std::vector<std::shared_ptr<Book> > &books, const st
         auto book = std::make_shared<Book>(inFile);
         books.push_back(book);
     }
+    if (!inFile) {
+        std::cerr << "Error reading from file!\n";
+    }
 }
 
 void FileManager::SaveUsers(const std::vector<std::shared_ptr<User>>& users, const std::string& filename) {
@@ -117,19 +119,18 @@ void FileManager::SaveUsers(const std::vector<std::shared_ptr<User>>& users, con
 void FileManager::LoadUsers(std::vector<std::shared_ptr<User>>& users, const std::string& filename) {
     std::ifstream inFile(filename, std::ios::binary);
     if (!inFile) {
-        // std::cerr << "Error opening file for loading users.\n";
+        std::cerr << "Error opening file for loading users.\n";
         return;
     }
 
     size_t count;
-    inFile.read(reinterpret_cast<char*>(&count), sizeof(count)); // Read the number of users
+    inFile.read(reinterpret_cast<char*>(&count), sizeof(count));
 
-    users.clear(); // Clear the current list of users
-
-    // Loop to read each user (only Student in this case)
+    users.clear();
+        //TODO Inability to read Adminstrator from file.
     for (size_t i = 0; i < count; ++i) {
-        auto student = std::make_shared<Student>(inFile);  // Create a new student from the file data
-        users.push_back(student);  // Add the student to the list
+        auto student = std::make_shared<Student>(inFile);
+        users.push_back(student);
     }
 
     // Check if reading was successful
@@ -217,7 +218,7 @@ void library::LoginUser(bool isAdmin) {
         if (isAdmin && dynamic_cast<Administrator *>(user.get())) {
             if (user->getUserName() == userName && user->getPassword() == password) {
                 std::cout << "Admin login successful!\n";
-                Menu::AdminstratorDashboard(*this);
+                Menu::AdministratorDashboard(*this);
                 return;
             }
         } else if (!isAdmin && dynamic_cast<Student *>(user.get())) {
@@ -232,14 +233,16 @@ void library::LoginUser(bool isAdmin) {
     std::cout << "Invalid credentials!\n";
 }
 
-void library::issueBook() {
+void library::issueBook(std::shared_ptr<Student> student) {
     int bookID;
     std::cout << "Enter Book ID to issue: ";
     std::cin >> bookID;
 
     for (auto &book: books) {
+        //TODO verify book id, currently it just issues every book.
         if (!book->isBookIssued()) {
             book->setIssued(true);
+            student->setBorrowedBook(book);
             std::cout << "Book issued successfully.\n";
             return;
         }
@@ -323,7 +326,6 @@ void library::displayIssuedBooksForStudent() {
             }
         }
     }
-
     std::cout << "Student not found or no books issued.\n";
 }
 
@@ -361,18 +363,24 @@ void Menu::Login(library &lib) {
 
 void Menu::StudentDashboard(library &lib, std::shared_ptr<Student> activeStudent) {
 
-    // Write the password
-
-
     bool running = true;
     while (running) {
-        std::cout << "Student Dashboard\n1. View Issued Books\n2. Exit\n";
+        std::cout << "Student Dashboard\n1.Display Books\n2.Issue Book\n3.Return Book\n4.View Issued Books\n5. Exit\n";
         int choice;
         std::cin >> choice;
         switch (choice) {
             case 1:
+                lib.displayBooks();
+                break;
+            case 2:
+                lib.issueBook(activeStudent);
+            case 3:
+                //TODO return book.
+                break;
+            case 4:
                 activeStudent->DisplayIssuedBook();
                 break;
+
             default:
                 running = false;
                 break;
@@ -380,17 +388,19 @@ void Menu::StudentDashboard(library &lib, std::shared_ptr<Student> activeStudent
     }
 }
 
-void Menu::AdminstratorDashboard(library &lib) {
-    std::cout << "Administrator Dashboard\n1. Add Book\n2. Issue Book\n3. Display Books\n4. Exit\n";
-    int choice;
-    std::cin >> choice;
+void Menu::AdministratorDashboard(library &lib) {
+
     bool running = true;
     while (running) {
+        std::cout << "Administrator Dashboard\n1. Add Book\n2. Display Users\n3. Display Books\n4. Exit\n";
+        int choice;
+        std::cin >> choice;
         switch (choice) {
             case 1:
                 lib.addBook();
+                break;
             case 2:
-                lib.issueBook();
+                lib.displaystudents();
                 break;
             case 3:
                 lib.displayBooks();

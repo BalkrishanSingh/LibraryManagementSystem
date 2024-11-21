@@ -56,6 +56,9 @@ class Student : public User {
         void SaveStudent(std::ofstream& outFile);
         Student(int userID, std::string userName, int password);
         void DisplayIssuedBook();
+        void setBorrowedBook(std::shared_ptr<Book> borrowedBook) {
+         this->borrowedBook = borrowedBook;
+        }
         Student(std::ifstream& inFile);
         void studentInformation();
 };
@@ -91,7 +94,7 @@ public:
 
     void LoginUser(bool isAdmin);
 
-    void issueBook();
+    void issueBook(std::shared_ptr<Student> student);
 
     void addBook();
 
@@ -115,7 +118,7 @@ public:
 
     static void StudentDashboard(library &lib, std::shared_ptr<Student> activeStudent);
 
-    static void AdminstratorDashboard(library &lib);
+    static void AdministratorDashboard(library &lib);
 
 };
 
