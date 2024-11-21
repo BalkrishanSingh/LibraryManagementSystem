@@ -1,9 +1,35 @@
 #include "library.h"
 #include "string"
 #include <iostream>
+    void library::AddDummyBooksToBinaryFile() {
 
+    books.push_back(std::make_shared<Book>(101, "C++ Programming", "Bjarne Stroustrup"));
+    books.push_back(std::make_shared<Book>(102, "Introduction to Algorithms", "Thomas H. Cormen"));
+    books.push_back(std::make_shared<Book>(103, "Clean Code", "Robert C. Martin"));
+    books.push_back(std::make_shared<Book>(104, "The Pragmatic Programmer", "Andrew Hunt"));
+    books.push_back(std::make_shared<Book>(105, "Design Patterns", "Erich Gamma"));
 
-Book::Book(int bookID, std::string bookName, std::string author) {
+}
+void library::AddDummyStudentsToBinaryFile() {
+    // Add some dummy students
+    users.push_back(std::make_shared<Student>(101, "Alice", 1234));
+    users.push_back(std::make_shared<Student>(102, "Bob", 5678));
+    users.push_back(std::make_shared<Student>(103, "Charlie", 91011)); // Student ID: 103, Name: Charlie, Password: 91011
+}
+
+library::library() {
+    library::AddDummyBooksToBinaryFile();
+    FileManager::LoadBooks(books, "./books.dat");
+    library::AddDummyStudentsToBinaryFile();
+    FileManager::LoadUsers(users, "./students.dat");
+
+}
+library::~library() {
+    FileManager::SaveBooks(books, "./books.dat");
+    FileManager::SaveUsers(users, "./students.dat");
+}
+Book::Book(int bookID, std::string bookName, std::string author)
+{
     this->bookID = bookID;
     this->bookName = bookName;
     this->author = author;
@@ -53,7 +79,7 @@ void FileManager::SaveBooks(const std::vector<std::shared_ptr<Book> > &books, co
 void FileManager::LoadBooks(std::vector<std::shared_ptr<Book> > &books, const std::string &filename) {
     std::ifstream inFile(filename, std::ios::binary);
     if (!inFile) {
-        std::cerr << "Error opening file for loading.\n";
+        // std::cerr << "Error opening file for loading.\n";
         return;
     }
     size_t count;
@@ -64,6 +90,67 @@ void FileManager::LoadBooks(std::vector<std::shared_ptr<Book> > &books, const st
         books.push_back(book);
     }
 }
+
+void FileManager::SaveUsers(const std::vector<std::shared_ptr<User>>& users, const std::string& filename) {
+    std::ofstream outFile(filename, std::ios::binary);
+    if (!outFile) {
+        std::cerr << "Error opening file for saving users.\n";
+        return;
+    }
+
+    // Write the count of users (all are students in this case)
+    size_t count = users.size();
+    outFile.write(reinterpret_cast<const char*>(&count), sizeof(count));
+
+    // Loop through each user and call the SaveStudent method for each Student
+    for (const auto& user : users) {
+        if (auto student = std::dynamic_pointer_cast<Student>(user)) {
+            student->SaveStudent(outFile);  // Call SaveStudent to save student data
+        }
+    }
+
+    // Check if writing was successful
+    if (!outFile) {
+        std::cerr << "Error writing to file!\n";
+    }
+}
+void FileManager::LoadUsers(std::vector<std::shared_ptr<User>>& users, const std::string& filename) {
+    std::ifstream inFile(filename, std::ios::binary);
+    if (!inFile) {
+        // std::cerr << "Error opening file for loading users.\n";
+        return;
+    }
+
+    size_t count;
+    inFile.read(reinterpret_cast<char*>(&count), sizeof(count)); // Read the number of users
+
+    users.clear(); // Clear the current list of users
+
+    // Loop to read each user (only Student in this case)
+    for (size_t i = 0; i < count; ++i) {
+        auto student = std::make_shared<Student>(inFile);  // Create a new student from the file data
+        users.push_back(student);  // Add the student to the list
+    }
+
+    // Check if reading was successful
+    if (!inFile) {
+        std::cerr << "Error reading from file!\n";
+    }
+}
+Student::Student(std::ifstream& inFile):User("", 0) {
+    // Read the size of the userName string and then the string itself
+    size_t nameSize;
+    inFile.read(reinterpret_cast<char*>(&nameSize), sizeof(nameSize));
+    userName.resize(nameSize);
+    inFile.read(&userName[0], nameSize);
+
+    // Read the password
+    inFile.read(reinterpret_cast<char*>(&password), sizeof(password));
+
+    // Read the userID (roll number)
+    inFile.read(reinterpret_cast<char*>(&userID), sizeof(userID));
+}
+
 
 
 Book::Book(std::ifstream &inFile) {
@@ -110,16 +197,6 @@ void Student::DisplayIssuedBook() {
     }
 }
 
-
-// library Class Definitions
-
-library::library() {
-    FileManager::LoadBooks(books, "./books.dat");
-}
-
-library::~library() {
-    FileManager::SaveBooks(books, "./books.dat");
-}
 
 void library::RegisterStudent(int userID, const std::string userName, int password) {
     auto student = std::make_shared<Student>(userID, userName, password);
@@ -194,7 +271,30 @@ void library::displayBooks() {
         book->BookInformation();
     }
 }
+void library::displaystudents(){
+    for (const auto& user: users) {
+         std::dynamic_pointer_cast<Student>(user)->studentInformation();
+    }
+}
+void Student::studentInformation() {
+    std::cout << "Student ID: " << userID
+              << "\nName: " << userName
+              << "\nPassword: " << password<<std::endl;
+}
 
+void Student::SaveStudent(std::ofstream& outFile) {
+    // Write the size of the userName string and then the string itself
+    size_t nameSize = userName.size();
+    outFile.write(reinterpret_cast<const char*>(&nameSize), sizeof(nameSize));
+    outFile.write(userName.c_str(), nameSize);
+
+    // Write the password
+    outFile.write(reinterpret_cast<const char*>(&password), sizeof(password));
+
+
+    // Write the userID (roll number)
+    outFile.write(reinterpret_cast<const char*>(&userID), sizeof(userID));
+}
 void library::searchBook() {
     int bookID;
     std::cout << "Enter Book ID to search: ";
@@ -260,6 +360,8 @@ void Menu::Login(library &lib) {
 
 
 void Menu::StudentDashboard(library &lib, std::shared_ptr<Student> activeStudent) {
+
+    // Write the password
 
 
     bool running = true;

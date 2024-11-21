@@ -52,19 +52,26 @@ class Student : public User {
     int userID; //Roll no
 
     std::shared_ptr<Book> borrowedBook;
-
-public:
-    Student(int userID, std::string userName, int password);
-
-    void DisplayIssuedBook();
+    public:
+        void SaveStudent(std::ofstream& outFile);
+        Student(int userID, std::string userName, int password);
+        void DisplayIssuedBook();
+        Student(std::ifstream& inFile);
+        void studentInformation();
 };
 
 class FileManager {
 public:
     static void SaveBooks(const std::vector<std::shared_ptr<Book> > &books, const std::string &filename);
 
-    static void LoadBooks(std::vector<std::shared_ptr<Book> > &books, const std::string &filename);
-};
+        static void LoadBooks(std::vector<std::shared_ptr<Book>>& books, const std::string& filename);
+            // Saves the users to a binary file
+        static void SaveUsers(const std::vector<std::shared_ptr<User>>& users, const std::string& filename);
+
+    // Loads the users from a binary file
+        static void LoadUsers(std::vector<std::shared_ptr<User>>& users, const std::string& filename);
+
+    };
 
 class Administrator : public User {
 public:
@@ -93,6 +100,11 @@ public:
     void searchBook();
 
     void displayIssuedBooksForStudent();
+
+    void displaystudents();
+
+    void AddDummyStudentsToBinaryFile();
+    void AddDummyBooksToBinaryFile();
 };
 
 class Menu {
@@ -104,6 +116,7 @@ public:
     static void StudentDashboard(library &lib, std::shared_ptr<Student> activeStudent);
 
     static void AdminstratorDashboard(library &lib);
+
 };
 
 #endif // LIBRARY_H
