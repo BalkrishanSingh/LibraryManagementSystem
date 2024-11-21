@@ -21,7 +21,7 @@ class Book {
 
 public:
     std::shared_ptr<User> bookBorrower;
-
+    //TODO  save which user has issued a book to file.
     Book(int bookID, std::string bookName, std::string author);
 
     Book(std::ifstream &inFile);
@@ -54,8 +54,9 @@ public:
 
 class Student : public User {
     int userID; //Roll no
-
+    //TODO Save which book has been borrowed.
     std::shared_ptr<Book> borrowedBook;
+    int borrowedBookID;
 
 public:
     void SaveStudent(std::ofstream &outFile);
@@ -85,10 +86,8 @@ public:
 
     static void LoadBooks(std::vector<std::shared_ptr<Book> > &books, const std::string &filename);
 
-    // Saves the users to a binary file
     static void SaveUsers(const std::vector<std::shared_ptr<User> > &users, const std::string &filename);
 
-    // Loads the users from a binary file
     static void LoadUsers(std::vector<std::shared_ptr<User> > &users, const std::string &filename);
 };
 

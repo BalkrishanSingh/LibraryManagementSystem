@@ -13,7 +13,6 @@ void library::AddDummyBooksToBinaryFile() {
 //TODO Add input validation for username (Capitalization ignore).
 void library::AddDummyStudentsToBinaryFile() {
     // Add some dummy students
-
     users.push_back(std::make_shared<Student>(101, "Alice", 1234));
     users.push_back(std::make_shared<Student>(102, "Bob", 5678));
     users.push_back(std::make_shared<Student>(103, "Charlie", 91011));
@@ -62,16 +61,13 @@ void FileManager::SaveBooks(const std::vector<std::shared_ptr<Book> > &books, co
         return;
     }
 
-    // Write the count of books
     size_t count = books.size();
     outFile.write(reinterpret_cast<const char *>(&count), sizeof(count));
 
-    // Write each book using its Save method
     for (const auto &book: books) {
-        book->Save(outFile); // Call the Save method of each book
+        book->Save(outFile);
     }
 
-    // Check if writing was successful
     if (!outFile) {
         std::cerr << "Error writing to file!\n";
     }
@@ -102,18 +98,15 @@ void FileManager::SaveUsers(const std::vector<std::shared_ptr<User> > &users, co
         return;
     }
 
-    // Write the count of users (all are students in this case)
     size_t count = users.size();
     outFile.write(reinterpret_cast<const char *>(&count), sizeof(count));
 
-    // Loop through each user and call the SaveStudent method for each Student
     for (const auto &user: users) {
         if (auto student = std::dynamic_pointer_cast<Student>(user)) {
-            student->SaveStudent(outFile); // Call SaveStudent to save student data
+            student->SaveStudent(outFile);
         }
     }
 
-    // Check if writing was successful
     if (!outFile) {
         std::cerr << "Error writing to user data file!\n";
     }
@@ -135,24 +128,21 @@ void FileManager::LoadUsers(std::vector<std::shared_ptr<User> > &users, const st
         users.push_back(student);
     }
 
-    // Check if reading was successful
     if (!inFile) {
         std::cerr << "Error reading from user data file!\n";
     }
 }
 
 Student::Student(std::ifstream &inFile): User("", 0) {
-    // Read the size of the userName string and then the string itself
     size_t nameSize;
     inFile.read(reinterpret_cast<char *>(&nameSize), sizeof(nameSize));
     userName.resize(nameSize);
     inFile.read(&userName[0], nameSize);
 
-    // Read the password
     inFile.read(reinterpret_cast<char *>(&password), sizeof(password));
 
-    // Read the userID (roll number)
     inFile.read(reinterpret_cast<char *>(&userID), sizeof(userID));
+    //
 }
 
 
@@ -169,25 +159,24 @@ Book::Book(std::ifstream &inFile) {
     author.resize(authorSize);
     inFile.read(&author[0], authorSize);
 
+
     inFile.read(reinterpret_cast<char *>(&isIssued), sizeof(isIssued));
 }
 
 
 void Book::Save(std::ofstream &outFile) {
-    // Write the bookID (an integer)
+
     outFile.write(reinterpret_cast<const char *>(&bookID), sizeof(bookID));
 
-    // Write the size of the bookName string and then the string itself
     size_t nameSize = bookName.size();
     outFile.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
     outFile.write(bookName.c_str(), nameSize);
 
-    // Write the size of the author string and then the string itself
+
     size_t authorSize = author.size();
     outFile.write(reinterpret_cast<const char *>(&authorSize), sizeof(authorSize));
     outFile.write(author.c_str(), authorSize);
 
-    // Write the isIssued flag (bool)
     outFile.write(reinterpret_cast<const char *>(&isIssued), sizeof(isIssued));
 }
 
@@ -300,19 +289,15 @@ void Student::studentInformation() {
 }
 
 void Student::SaveStudent(std::ofstream &outFile) {
-    // Write the size of the userName string and then the string itself
+
     size_t nameSize = userName.size();
     outFile.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
     outFile.write(userName.c_str(), nameSize);
-
-    // Write the password
     outFile.write(reinterpret_cast<const char *>(&password), sizeof(password));
 
-
-    // Write the userID (roll number)
     outFile.write(reinterpret_cast<const char *>(&userID), sizeof(userID));
 }
-
+//unused
 void library::searchBook() {
     int bookID;
     std::cout << "Enter Book ID to search: ";
@@ -388,6 +373,7 @@ void Menu::StudentDashboard(library &lib, std::shared_ptr<Student> activeStudent
                 break;
             case 2:
                 lib.issueBook(activeStudent);
+                break;
             case 3:
                 lib.returnBook(activeStudent);
                 break;
